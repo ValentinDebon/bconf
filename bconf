@@ -1,0 +1,15 @@
+config DEFAULT_MAKEFILE_TEMPLATE
+	"Default Makefile template location"
+	defaults "$(datadir)/Makefile.in"
+
+config DEFAULT_OUTPUT_TEMPLATE
+	"Default configuration script template location"
+	defaults "$(datadir)/configure.in"
+
+config DEFAULT_OUTPUT
+	"Default output file name"
+	defaults "configure"
+
+config DEFAULT_BCONF
+	"Default build config file name"
+	defaults "bconf"

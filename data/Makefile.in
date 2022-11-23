@@ -1,0 +1,198 @@
+AR=@AR@
+AS=@AS@
+CC=@CC@
+CPP=@CPP@
+MKDIR=@MKDIR@
+INSTALL=@INSTALL@
+
+ARFLAGS=@ARFLAGS@
+ASFLAGS=@ASFLAGS@
+CFLAGS=@CFLAGS@
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+LDLIBS=@LDLIBS@
+
+package-name:=@m_package_name@
+package-version:=@m_package_version@
+
+objdir:=@objdir@
+srcdir:=@srcdir@
+
+sysroot:=@mx_sysroot@
+build:=@mx_build@
+host:=@mx_host@
+
+prefix:=@mi_prefix@
+exec_prefix:=@mi_exec_prefix@
+bindir:=@mi_bindir@
+sbindir:=@mi_sbindir@
+libexecdir:=@mi_libexecdir@
+libdir:=@mi_libdir@
+datarootdir:=@mi_datarootdir@
+datadir:=@mi_datadir@
+sysconfdir:=@mi_sysconfdir@
+sharedstatedir:=@mi_sharedstatedir@
+localstatedir:=@mi_localstatedir@
+runstatedir:=@mi_runstatedir@
+includedir:=@mi_includedir@
+docdir:=@mi_docdir@
+infodir:=@mi_infodir@
+mandir:=@mi_mandir@
+htmldir:=@mi_htmldir@
+dvidir:=@mi_dvidir@
+pdfdir:=@mi_pdfdir@
+psdir:=@mi_psdir@
+
+build-arch:=$(firstword $(subst -, ,$(build)))
+host-arch:=$(firstword $(subst -, ,$(host)))
+
+host-bin:=
+host-sbin:=
+host-libexec:=
+host-lib:=
+host-data:=
+
+ld-so?=so
+host-$(host-arch):=
+clean-up:=
+
+all:
+
+include $(srcdir)/bconf.mk
+
+INSTALL-EXEC?=$(INSTALL)
+INSTALL-DATA?=$(INSTALL) -m644
+VPATH:=$(srcdir)
+
+ifeq ($(V),1)
+v-e:=@\#
+v-a:=
+else
+v-e:=@echo
+v-a:=@
+endif
+
+ld-exec?=-pie
+ld-slib?=-shared
+host-lib-static:=$(filter lib%.a,$(host-lib))
+ifneq ($(ld-so),a)
+host-lib-shared:=$(filter lib%.$(ld-so),$(host-lib))
+else
+host-lib-shared:=
+endif
+
+.SUFFIXES:
+.PHONY: all clean \
+	install-data uninstall-data \
+	install-devel uninstall-devel \
+	install-exec install-exec-strip uninstall-exec \
+	install install-strip uninstall
+
+all: $(host-bin) $(host-sbin) $(host-libexec) $(host-lib)
+
+clean:
+	$(v-e) CLEAN
+	$(v-a) $(RM) -- $(clean-up)
+
+install-exec-strip: INSTALL:=$(INSTALL) -s
+install-exec-strip: install-exec
+
+install: install-data install-devel install-exec
+install-strip: install-data install-devel install-exec-strip
+uninstall: uninstall-data uninstall-devel uninstall-exec
+
+ifneq ($(host-data),)
+.PHONY: install-datadir uninstall-datadir
+install-data: install-datadir
+uninstall-data: uninstall-datadir
+install-datadir: $(host-data)
+	$(v-e) INSTALL $(host-data)
+	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(datadir) -- $^
+uninstall-datadir:
+	$(v-e) UNINSTALL $(host-data)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(datadir)/",$(notdir $(host-data)))
+endif
+
+ifneq ($(host-lib-static),)
+.PHONY: install-libdir-static uninstall-libdir-static
+install-devel: install-libdir-static
+uninstall-devel: uninstall-libdir-static
+install-libdir-static: $(host-lib-static)
+	$(v-e) INSTALL $(host-lib-static)
+	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(libdir) -- $^
+uninstall-libdir-static:
+	$(v-e) UNINSTALL $(host-lib-static)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libdir)/",$(notdir $(host-lib-static)))
+endif
+
+ifneq ($(host-bin),)
+.PHONY: install-bindir uninstall-bindir
+install-exec: install-bindir
+uninstall-exec: uninstall-bindir
+install-bindir: $(host-bin)
+	$(v-e) INSTALL $(host-bin)
+	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(bindir) -- $^
+uninstall-bindir:
+	$(v-e) UNINSTALL $(host-bin)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(bindir)/",$(notdir $(host-bin)))
+endif
+
+ifneq ($(host-sbin),)
+.PHONY: install-sbindir uninstall-sbindir
+install-exec: install-sbindir
+uninstall-exec: uninstall-sbindir
+install-sbindir: $(host-sbin)
+	$(v-e) INSTALL $(host-sbin)
+	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(sbindir) -- $^
+uninstall-sbindir:
+	$(v-e) UNINSTALL $(host-sbin)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(sbindir)/",$(notdir $(host-sbin)))
+endif
+
+ifneq ($(host-libexec),)
+.PHONY: install-libexecdir uninstall-libexecdir
+install-exec: install-libexecdir
+uninstall-exec: uninstall-libexecdir
+install-libexecdir: $(host-libexec)
+	$(v-e) INSTALL $(host-libexec)
+	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(libexecdir) -- $^
+uninstall-libexecdir:
+	$(v-e) UNINSTALL $(host-libexec)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libexecdir)/",$(notdir $(host-libexec)))
+endif
+
+ifneq ($(host-lib-shared),)
+.PHONY: install-libdir-shared uninstall-libdir-shared
+install-exec: install-libdir-shared
+uninstall-exec: uninstall-libdir-shared
+install-libdir-shared: $(host-lib-shared)
+	$(v-e) INSTALL $(host-lib-shared)
+	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(libdir) -- $^
+uninstall-libdir-shared:
+	$(v-e) UNINSTALL $(host-lib-shared)
+	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libdir)/",$(notdir $(host-lib-shared)))
+endif
+
+$(host-bin) $(host-sbin) $(host-libexec): %:
+	$(v-e) CC $@
+	$(v-a) $(CC) $(ld-exec) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(host-lib-static): %:
+	$(v-e) AR $@
+	$(v-a) $(AR) $(ARFLAGS) $@ $?
+
+$(host-lib-shared): %:
+	$(v-e) CC $@
+	$(v-a) $(CC) $(ld-slib) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+%.o: %.c
+	$(v-e) CC $@
+	$(v-a) $(MKDIR) $(@D) && $(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+%.s: %.S
+	$(v-e) CPP $@
+	$(v-a) $(MKDIR) $(@D) && $(CPP) $(CPPFLAGS) -o $@ $<
+
+$(host-$(host-arch)): %.o: %.s
+	$(v-e) AS $@
+	$(v-a) $(MKDIR) $(@D) && $(AS) $(ASFLAGS) -o $@ $<
