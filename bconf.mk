@@ -12,14 +12,23 @@ mkconf.o: y.tab.h
 y.tab.h: y.tab.c
 y.tab.c: bconf.y
 	$(v-e) YACC $@
-	$(v-a) $(YACC) $(YFLAGS) -o y.tab.c -d $<
+	$(v-a) $(YACC) $(YFLAGS) -d -- $<
 
 lex.yy.c: bconf.l y.tab.h
 	$(v-e) LEX $@
-	$(v-a) $(LEX) $(LFLAGS) -o $@ $<
+	$(v-a) $(LEX) $(LFLAGS) -- $<
 
 mkconf: $(mkconf-objs)
 
 host-bin+=mkconf
-host-data+=configure.in Makefile.in
 clean-up+=$(host-bin) $(mkconf-objs) y.tab.c y.tab.h lex.yy.c
+
+host-data:=configure.in Makefile.in
+
+install-data: $(host-data)
+	$(v-e) INSTALL $(host-data)
+	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(datadir) -- $^
+
+uninstall-data:
+	$(v-e) UNINSTALL $(host-data)
+	$(v-a) $(RM) -- $(patsubst %,$(DESTDIR)$(datadir)/%,$(notdir $(host-data)))

@@ -50,7 +50,6 @@ host-bin:=
 host-sbin:=
 host-libexec:=
 host-lib:=
-host-data:=
 
 ld-so?=so
 host-$(host-arch):=
@@ -100,18 +99,6 @@ install-exec-strip: install-exec
 install: install-data install-devel install-exec
 install-strip: install-data install-devel install-exec-strip
 uninstall: uninstall-data uninstall-devel uninstall-exec
-
-ifneq ($(host-data),)
-.PHONY: install-datadir uninstall-datadir
-install-data: install-datadir
-uninstall-data: uninstall-datadir
-install-datadir: $(host-data)
-	$(v-e) INSTALL $(host-data)
-	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(datadir) -- $^
-uninstall-datadir:
-	$(v-e) UNINSTALL $(host-data)
-	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(datadir)/",$(notdir $(host-data)))
-endif
 
 ifneq ($(host-lib-static),)
 .PHONY: install-libdir-static uninstall-libdir-static
