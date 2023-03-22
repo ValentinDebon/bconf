@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage() {
-	cat 2>&1 <<EOF
+	cat 1>&2 <<EOF
 usage: \`$0' [--<option>=<value>]
 Build options:
 	--srcdir  Absolute path to source directory.
@@ -33,7 +33,7 @@ Installation directories options:
 Features options:
 @{mkconf_usage}
 EOF
-	exit $1
+	exit "$1"
 }
 
 @{mkconf_defaults}
@@ -109,8 +109,8 @@ done
 
 @{mkconf_features_summary}
 
-: "${objdir:="$(pwd)"}
-: "${srcdir:="$(cd -P -- $(dirname -- $(command -v -- $0)) && pwd -P)"}
+: "${objdir:="$(pwd)"}"
+: "${srcdir:="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"}"
 
 : "${mx_build:="$($CC -dumpmachine)"}"
 : "${mx_host:="$($CC -dumpmachine)"}"
