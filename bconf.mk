@@ -23,11 +23,12 @@ mkconf: $(mkconf-objs)
 host-bin+=mkconf
 clean-up+=$(host-bin) $(mkconf-objs) y.tab.c y.tab.h lex.yy.c
 
-host-data:=configure.in Makefile.in
+host-data:=configure.in GNUmakefile.in
 
 install-data: $(host-data)
 	$(v-e) INSTALL $(host-data)
-	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(datadir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(datadir)"
+	$(v-a) $(INSTALL-DATA) -- $^ "$(DESTDIR)$(datadir)"
 
 uninstall-data:
 	$(v-e) UNINSTALL $(host-data)

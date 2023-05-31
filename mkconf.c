@@ -354,7 +354,7 @@ mkconf_preprocess_makefile_heredoc(struct mkconf *mkconf) {
 
 	rewind(mkconf->makefile_template);
 
-	fputs("cat > Makefile <<EOF\n", mkconf->output);
+	fputs("cat > GNUmakefile <<EOF\n", mkconf->output);
 
 	mkconf_preprocess_makefile_heredoc_features(mkconf);
 

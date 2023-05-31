@@ -1,0 +1,6 @@
+GNUmakefile
+configure
+lex.yy.c
+y.tab.[ch]
+mkconf
+*.o

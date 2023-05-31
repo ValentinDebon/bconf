@@ -6,6 +6,11 @@ due to decades of enforced support for retrocompatibility.
 
 The **bconf** utilities is a set of tools which purpose is to make
 _source release of a software version_ easy to create and distribute.
+
+The generated configure script should be POSIX-compliant
+while the configure's generated Makefile targets GNU Make,
+which is available on most UNIX-like systems.
+
 In short, it provides the following functionalities:
 - Makefile-easy and flexible build-system during development.
 - Overridable set of rules and recipes for C software and libraries.

@@ -60,7 +60,7 @@ all:
 include $(srcdir)/bconf.mk
 
 INSTALL-EXEC?=$(INSTALL)
-INSTALL-DATA?=$(INSTALL) -m644
+INSTALL-DATA?=$(INSTALL) -m 644
 VPATH:=$(srcdir)
 
 ifeq ($(V),1)
@@ -93,7 +93,8 @@ clean:
 	$(v-e) CLEAN
 	$(v-a) $(RM) -- $(clean-up)
 
-install-exec-strip: INSTALL:=$(INSTALL) -s
+install-exec-strip: INSTALL-EXEC:=$(INSTALL-EXEC) -s
+install-exec-strip: INSTALL-DATA:=$(INSTALL-DATA) -s
 install-exec-strip: install-exec
 
 install: install-data install-devel install-exec
@@ -106,7 +107,8 @@ install-devel: install-libdir-static
 uninstall-devel: uninstall-libdir-static
 install-libdir-static: $(host-lib-static)
 	$(v-e) INSTALL $(host-lib-static)
-	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(libdir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(libdir)"
+	$(v-a) $(INSTALL-DATA) -- $^ "$(DESTDIR)$(libdir)"
 uninstall-libdir-static:
 	$(v-e) UNINSTALL $(host-lib-static)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libdir)/",$(notdir $(host-lib-static)))
@@ -118,7 +120,8 @@ install-exec: install-bindir
 uninstall-exec: uninstall-bindir
 install-bindir: $(host-bin)
 	$(v-e) INSTALL $(host-bin)
-	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(bindir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(bindir)"
+	$(v-a) $(INSTALL-EXEC) -- $^ "$(DESTDIR)$(bindir)"
 uninstall-bindir:
 	$(v-e) UNINSTALL $(host-bin)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(bindir)/",$(notdir $(host-bin)))
@@ -130,7 +133,8 @@ install-exec: install-sbindir
 uninstall-exec: uninstall-sbindir
 install-sbindir: $(host-sbin)
 	$(v-e) INSTALL $(host-sbin)
-	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(sbindir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(sbindir)"
+	$(v-a) $(INSTALL-EXEC) -- $^ "$(DESTDIR)$(sbindir)"
 uninstall-sbindir:
 	$(v-e) UNINSTALL $(host-sbin)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(sbindir)/",$(notdir $(host-sbin)))
@@ -142,7 +146,8 @@ install-exec: install-libexecdir
 uninstall-exec: uninstall-libexecdir
 install-libexecdir: $(host-libexec)
 	$(v-e) INSTALL $(host-libexec)
-	$(v-a) $(INSTALL-EXEC) -Dt $(DESTDIR)$(libexecdir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(libexecdir)"
+	$(v-a) $(INSTALL-EXEC) -- $^ "$(DESTDIR)$(libexecdir)"
 uninstall-libexecdir:
 	$(v-e) UNINSTALL $(host-libexec)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libexecdir)/",$(notdir $(host-libexec)))
@@ -154,7 +159,8 @@ install-exec: install-libdir-shared
 uninstall-exec: uninstall-libdir-shared
 install-libdir-shared: $(host-lib-shared)
 	$(v-e) INSTALL $(host-lib-shared)
-	$(v-a) $(INSTALL-DATA) -Dt $(DESTDIR)$(libdir) -- $^
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(libdir)"
+	$(v-a) $(INSTALL-DATA) -- $^ "$(DESTDIR)$(libdir)"
 uninstall-libdir-shared:
 	$(v-e) UNINSTALL $(host-lib-shared)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libdir)/",$(notdir $(host-lib-shared)))

@@ -1,6 +1,6 @@
 config DEFAULT_MAKEFILE_TEMPLATE
-	"Default Makefile template location"
-	defaults "$(datadir)/Makefile.in"
+	"Default GNUmakefile template location"
+	defaults "$(datadir)/GNUmakefile.in"
 
 config DEFAULT_OUTPUT_TEMPLATE
 	"Default configuration script template location"
