@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 #include "mkconf.h"
 
 #include <stdio.h>

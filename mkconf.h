@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 #ifndef MKCONF_H
 #define MKCONF_H
 

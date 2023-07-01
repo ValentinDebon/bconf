@@ -22,6 +22,14 @@ In short, it provides the following functionalities:
 - Support out of source tree builds.
 - Support cross compilation.
 
+## Copying
+
+bconf is released under a BSD-3-Clause license, see the
+LICENSE file which should also have been redistributed with the sources.
+
+configure.in and GNUmakefile.in templates are also redistributed under the previous license.
+Exception made for bconf's GENERATED configuration/GNUmakefile files, which are redistributed under the CC0 license.
+
 ## Developer
 
 The software developer must describe:
