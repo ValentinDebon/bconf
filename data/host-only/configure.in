@@ -7,7 +7,6 @@ Build options:
 	--srcdir  Absolute path to source directory.
 	--objdir  Absolute path to build directory.
 	--sysroot Host system root directory.
-	--build   Build system target.
 	--host    Host system target.
 Installation directories options:
 	--prefix         defaults to '/usr/local'.
@@ -48,7 +47,6 @@ do
 	--srcdir=*) srcdir=$m_optarg ;;
 	# Cross-compilation
 	--sysroot=*) mx_sysroot=$m_optarg ;;
-	--build=*) mx_build=$m_optarg ;;
 	--host=*) mx_host=$m_optarg ;;
 	# Installation directories
 	--prefix=*) mi_prefix=$m_optarg ;;
@@ -78,10 +76,19 @@ do
 	esac
 done
 
-: "${AR:=ar}"
-: "${AS:=as}"
-: "${CC:=cc}"
-: "${CPP:=cpp}"
+if [ ! -z "${mx_host}" ]
+then
+	: "${AR:=${mx_host}-ar}"
+	: "${AS:=${mx_host}-as}"
+	: "${CC:=${mx_host}-gcc}"
+	: "${CPP:=${mx_host}-cpp}"
+else
+	: "${AR:=ar}"
+	: "${AS:=as}"
+	: "${CC:=cc}"
+	: "${CPP:=cpp}"
+fi
+
 : "${MKDIR:=mkdir -p}"
 : "${INSTALL:=install}"
 
@@ -112,7 +119,6 @@ done
 : "${objdir:="$(pwd)"}"
 : "${srcdir:="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"}"
 
-: "${mx_build:="$($CC -dumpmachine)"}"
 : "${mx_host:="$($CC -dumpmachine)"}"
 
 : "${mi_prefix="/usr/local"}"

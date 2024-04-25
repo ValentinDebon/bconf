@@ -1,0 +1,155 @@
+#!/bin/sh
+
+usage() {
+	cat 1>&2 <<EOF
+usage: \`$0' [--<option>=<value>]
+Build options:
+	--srcdir  Absolute path to source directory.
+	--objdir  Absolute path to build directory.
+	--sysroot Host system root directory.
+	--build   Build system target.
+	--host    Host system target.
+Installation directories options:
+	--prefix         defaults to '/usr/local'.
+	--exec_prefix    defaults to '\$(prefix)'.
+	--bindir         The directory for installing executable programs that users can run, defaults to '\$(exec_prefix)/bin'.
+	--sbindir        The directory for installing executable programs that system administrators can run, defaults to '\$(exec_prefix)/sbin'.
+	--libexecdir     The directory for installing executable programs to be run by other programs rather than by users, defaults to '\$(exec_prefix)/libexec'.
+	--libdir         The directory for object files and libraries of object code, defaults to '\$(exec_prefix)/lib'.
+	--datarootdir    The root of the directory tree for read-only architecture-independent data files, defaults to '\$(prefix)/share'.
+	--datadir        The directory for installing read-only architecture-independent data files for this program, defaults to '\$(datarootdir)/\$(package-name)'.
+	--sysconfdir     The directory for installing read-only data files for configuring a host, defaults to '\$(prefix)/etc'.
+	--sharedstatedir The directory for installing architecture-independent data files which the programs modify while they run, defaults to '\$(prefix)/com'.
+	--localstatedir  The directory for installing data files which the programs modify while they run, defaults to '\$(prefix)/var'.
+	--runstatedir    The directory for installing data files which the programs modify while they run, and which need not persist longer than the execution of the program, defaults to '\$(localstatedir)/run'.
+	--includedir     The directory for installing C header files to be included by user programs, defaults to '\$(prefix)/include'.
+	--docdir         The directory for installing documentation files for this package, defaults to '\$(datarootdir)/doc/\$(package-name)'.
+	--infodir        The directory for installing the GNU Info files for this package, defaults to '\$(datarootdir)/info'.
+	--mandir         The top-level directory for installing the man pages for this package, defaults to '\$(datarootdir)/man'.
+	--htmldir        Directories for installing documentation files in the HTML format, defaults to '\$(docdir)'.
+	--dvidir         Directories for installing documentation files in the DVI format, defaults to '\$(docdir)'.
+	--pdfdir         Directories for installing documentation files in the Portable Document Format, defaults to '\$(docdir)'.
+	--psdir          Directories for installing documentation files in the Post Script format, defaults to '\$(docdir)'.
+Features options:
+@{mkconf_usage}
+EOF
+	exit "$1"
+}
+
+@{mkconf_defaults}
+
+for m_option
+do
+	m_optarg=$(expr "X$m_option" : '^X[^=]*=\(.*\)$')
+	case "$m_option" in
+	--help) usage 0 ;;
+	# Build directories
+	--objdir=*) objdir=$m_optarg ;;
+	--srcdir=*) srcdir=$m_optarg ;;
+	# Cross-compilation
+	--sysroot=*) mx_sysroot=$m_optarg ;;
+	--build=*) mx_build=$m_optarg ;;
+	--host=*) mx_host=$m_optarg ;;
+	# Installation directories
+	--prefix=*) mi_prefix=$m_optarg ;;
+	--exec_prefix=*) mi_exec_prefix=$m_optarg ;;
+	--bindir=*) mi_bindir=$m_optarg ;;
+	--sbindir=*) mi_sbindir=$m_optarg ;;
+	--libexecdir=*) mi_libexecdir=$m_optarg ;;
+	--libdir=*) mi_libdir=$m_optarg ;;
+	--datarootdir=*) mi_datarootdir=$m_optarg ;;
+	--datadir=*) mi_datadir=$m_optarg ;;
+	--sysconfdir=*) mi_sysconfdir=$m_optarg ;;
+	--sharedstatedir=*) mi_sharedstatedir=$m_optarg ;;
+	--localstatedir=*) mi_localstatedir=$m_optarg ;;
+	--runstatedir=*) mi_runstatedir=$m_optarg ;;
+	--includedir=*) mi_includedir=$m_optarg ;;
+	--docdir=*) mi_docdir=$m_optarg ;;
+	--infodir=*) mi_infodir=$m_optarg ;;
+	--mandir=*) mi_mandir=$m_optarg ;;
+	--htmldir=*) mi_htmldir=$m_optarg ;;
+	--dvidir=*) mi_dvidir=$m_optarg ;;
+	--pdfdir=*) mi_pdfdir=$m_optarg ;;
+	--psdir=*) mi_psdir=$m_optarg ;;
+@{mkconf_getopt_long}
+	*)
+		printf 'unknown option "%s"\n' "$m_option" 2>&1
+		usage 1 ;;
+	esac
+done
+
+if [ ! -z "${mx_build}" ]
+then
+	: "${BUILDCC:=${mx_build}-gcc}"
+else
+	: "${BUILDCC:=cc}"
+fi
+
+if [ ! -z "${mx_host}" ]
+then
+	: "${AR:=${mx_host}-ar}"
+	: "${AS:=${mx_host}-as}"
+	: "${CC:=${mx_host}-gcc}"
+	: "${CPP:=${mx_host}-cpp}"
+else
+	: "${AR:=ar}"
+	: "${AS:=as}"
+	: "${CC:=cc}"
+	: "${CPP:=cpp}"
+fi
+
+: "${MKDIR:=mkdir -p}"
+: "${INSTALL:=install}"
+
+: "${ARFLAGS:=-rc}"
+: "${CFLAGS:=-fPIC -O2}"
+
+@{mkconf_package_vars}
+
+printf 'Package "%s" version "%s"\n' "${m_package_name}" "${m_package_version}"
+
+printf 'Selected tools:\n'
+for var in BUILDCC AR AS CC CPP INSTALL
+do
+	if eval "command -v \"\$$var\"" > /dev/null
+	then printf '\t%s is "%s"\n' "$var" "$(eval "echo \"\$$var\"")"
+	else printf '\t%s not found!\n' "$var" 1>&2 ; exit 1
+	fi
+done
+
+printf 'Tools options:\n'
+for var in ARFLAGS ASFLAGS CFLAGS CPPFLAGS LDFLAGS LDLIBS
+do
+	printf '\t%s is "%s"\n' "$var" "$(eval "echo \"\$$var\"")"
+done
+
+@{mkconf_features_summary}
+
+: "${objdir:="$(pwd)"}"
+: "${srcdir:="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"}"
+
+: "${mx_build:="$($BUILDCC -dumpmachine)"}"
+: "${mx_host:="$($CC -dumpmachine)"}"
+
+: "${mi_prefix="/usr/local"}"
+: "${mi_exec_prefix="${mi_prefix}"}"
+: "${mi_bindir="${mi_exec_prefix}/bin"}"
+: "${mi_sbindir="${mi_exec_prefix}/sbin"}"
+: "${mi_libexecdir="${mi_exec_prefix}/libexec"}"
+: "${mi_libdir="${mi_exec_prefix}/lib"}"
+: "${mi_datarootdir="${mi_prefix}/share"}"
+: "${mi_datadir="${mi_datarootdir}/${m_package_name}"}"
+: "${mi_sysconfdir="${mi_prefix}/etc"}"
+: "${mi_sharedstatedir="${mi_prefix}/com"}"
+: "${mi_localstatedir="${mi_prefix}/var"}"
+: "${mi_runstatedir="${mi_localstatedir}/run"}"
+: "${mi_includedir="${mi_prefix}/include"}"
+: "${mi_docdir="${mi_datarootdir}/doc/${m_package_name}"}"
+: "${mi_infodir="${mi_datarootdir}/info"}"
+: "${mi_mandir="${mi_datarootdir}/man"}"
+: "${mi_htmldir="${mi_docdir}"}"
+: "${mi_dvidir="${mi_docdir}"}"
+: "${mi_pdfdir="${mi_docdir}"}"
+: "${mi_psdir="${mi_docdir}"}"
+
+@{mkconf_makefile_heredoc}

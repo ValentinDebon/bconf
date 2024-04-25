@@ -104,10 +104,10 @@ mkconf_init_from_name(struct mkconf *mkconf, char *namever) {
 
 static void
 mkconf_init(struct mkconf *mkconf) {
-	static char workdir[PATH_MAX];
-	char *namever;
+	char *workdir, *namever;
 
-	if (getcwd(workdir, sizeof (workdir)) == NULL) {
+	workdir = getcwd(NULL, 0);
+	if (workdir == NULL) {
 		err(EXIT_FAILURE, "getcwd");
 	}
 
@@ -115,6 +115,9 @@ mkconf_init(struct mkconf *mkconf) {
 	if (namever == NULL) {
 		errx(EXIT_FAILURE, "basename %s", workdir);
 	}
+	namever = strdup(namever);
+
+	free(workdir);
 
 	mkconf_init_from_name(mkconf, namever);
 }
@@ -459,22 +462,22 @@ mkconf_close_files(struct mkconf *mkconf) {
 static void noreturn
 mkconf_usage(const char *progname) {
 
-	fprintf(stderr, "usage: %s [-c <bconf>] [-o <output>] [-I <output-template>] [-M <makefile-template>] [<name> [<version>]]\n", progname);
+	fprintf(stderr, "usage: %s [-c <bconf>] [-o <output>] [-t <template-set>]"
+		" [-O <output-template>] [-M <makefile-template>] [<name> [<version>]]\n", progname);
 
 	exit(EXIT_FAILURE);
 }
 
 static struct mkconf_args
 mkconf_parse_args(int argc, char **argv) {
+	const char *template_set = CONFIG_DEFAULT_TEMPLATE_SET;
 	struct mkconf_args args = {
 		.bconf = CONFIG_DEFAULT_BCONF,
 		.output = CONFIG_DEFAULT_OUTPUT,
-		.output_template = CONFIG_DEFAULT_OUTPUT_TEMPLATE,
-		.makefile_template = CONFIG_DEFAULT_MAKEFILE_TEMPLATE,
 	};
 	int c;
 
-	while (c = getopt(argc, argv, ":c:o:I:M:"), c != -1) {
+	while ((c = getopt(argc, argv, ":c:o:t:O:M:")) >= 0) {
 		switch (c) {
 		case 'c':
 			args.bconf = optarg;
@@ -482,7 +485,10 @@ mkconf_parse_args(int argc, char **argv) {
 		case 'o':
 			args.output = optarg;
 			break;
-		case 'I':
+		case 't':
+			template_set = optarg;
+			break;
+		case 'O':
 			args.output_template = optarg;
 			break;
 		case 'M':
@@ -500,6 +506,36 @@ mkconf_parse_args(int argc, char **argv) {
 	if (argc - optind > 2) {
 		warnx("Too many arguments");
 		mkconf_usage(*argv);
+	}
+
+	if (args.output_template == NULL || args.makefile_template == NULL) {
+		static const char * const formats[][2] = {
+			{ CONFIG_DATADIR"/%s/configure.in", CONFIG_DATADIR"/%s/GNUmakefile.in", },
+			{ "%s/configure.in", "%s/GNUmakefile.in", },
+		};
+		const unsigned int index = strchr(template_set, '/') != NULL;
+		char path[PATH_MAX];
+		int len;
+
+		if (*template_set == '\0' || (!index && *template_set == '.')) {
+			errx(EXIT_FAILURE, "Invalid template set '%s'", template_set);
+		}
+
+		if (args.output_template == NULL) {
+			len = snprintf(path, sizeof (path), formats[index][0], template_set);
+			if (len < 0 || len >= PATH_MAX) {
+				errx(EXIT_FAILURE, "Invalid output template path");
+			}
+			args.output_template = strdup(path);
+		}
+
+		if (args.makefile_template == NULL) {
+			len = snprintf(path, sizeof (path), formats[index][1], template_set);
+			if (len < 0 || len >= PATH_MAX) {
+				errx(EXIT_FAILURE, "Invalid Makefile template path");
+			}
+			args.makefile_template = strdup(path);
+		}
 	}
 
 	return args;

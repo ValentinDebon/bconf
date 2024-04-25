@@ -1,3 +1,4 @@
+BUILDCC=@BUILDCC@
 AR=@AR@
 AS=@AS@
 CC=@CC@
@@ -46,6 +47,7 @@ psdir:=@mi_psdir@
 build-arch:=$(firstword $(subst -, ,$(build)))
 host-arch:=$(firstword $(subst -, ,$(host)))
 
+build-bin:=
 host-bin:=
 host-sbin:=
 host-libexec:=
@@ -54,6 +56,10 @@ host-lib:=
 ld-so?=so
 host-$(host-arch):=
 clean-up:=
+
+$(build-bin): CFLAGS=
+$(build-bin): LDFLAGS=
+$(build-bin): LDLIBS=
 
 all:
 
@@ -165,6 +171,10 @@ uninstall-libdir-shared:
 	$(v-e) UNINSTALL $(host-lib-shared)
 	$(v-a) $(RM) -- $(addprefix "$(DESTDIR)$(libdir)/",$(notdir $(host-lib-shared)))
 endif
+
+$(build-bin): %:
+	$(v-e) BUILDCC $@
+	$(v-a) $(BUILDCC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(host-bin) $(host-sbin) $(host-libexec): %:
 	$(v-e) CC $@

@@ -1,8 +1,8 @@
 CPPFLAGS=-D_GNU_SOURCE \
-	-DCONFIG_DEFAULT_MAKEFILE_TEMPLATE=\"GNUmakefile.in\" \
-	-DCONFIG_DEFAULT_OUTPUT_TEMPLATE=\"configure.in\" \
+	-DCONFIG_DEFAULT_TEMPLATE_SET=\"host-only\" \
 	-DCONFIG_DEFAULT_OUTPUT=\"configure\" \
-	-DCONFIG_DEFAULT_BCONF=\"bconf\"
+	-DCONFIG_DEFAULT_BCONF=\"bconf\" \
+	-DCONFIG_DATADIR=\"data\" \
 
 mkconf: y.tab.o lex.yy.o
 
