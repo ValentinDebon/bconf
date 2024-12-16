@@ -1,6 +1,5 @@
 BUILDCC=@BUILDCC@
 AR=@AR@
-AS=@AS@
 CC=@CC@
 CPP=@CPP@
 MKDIR=@MKDIR@
@@ -19,7 +18,6 @@ package-version:=@m_package_version@
 objdir:=@objdir@
 srcdir:=@srcdir@
 
-sysroot:=@mx_sysroot@
 build:=@mx_build@
 host:=@mx_host@
 
@@ -40,9 +38,7 @@ docdir:=@mi_docdir@
 infodir:=@mi_infodir@
 mandir:=@mi_mandir@
 htmldir:=@mi_htmldir@
-dvidir:=@mi_dvidir@
 pdfdir:=@mi_pdfdir@
-psdir:=@mi_psdir@
 
 build-arch:=$(firstword $(subst -, ,$(build)))
 host-arch:=$(firstword $(subst -, ,$(host)))
@@ -192,10 +188,6 @@ $(host-lib-shared): %:
 	$(v-e) CC $@
 	$(v-a) $(MKDIR) $(@D) && $(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-%.s: %.S
-	$(v-e) CPP $@
-	$(v-a) $(MKDIR) $(@D) && $(CPP) $(CPPFLAGS) -o $@ $<
-
-$(host-$(host-arch)): %.o: %.s
+$(host-$(host-arch)): %.o: %.S
 	$(v-e) AS $@
-	$(v-a) $(MKDIR) $(@D) && $(AS) $(ASFLAGS) -o $@ $<
+	$(v-a) $(MKDIR) $(@D) && $(CC) $(CPPFLAGS) $(ASFLAGS) -c -o $@ $<

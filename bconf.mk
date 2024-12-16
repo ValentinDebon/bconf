@@ -43,3 +43,11 @@ uninstall-data:
 	$(v-a) $(RM) -- \
 		 $(patsubst %,$(DESTDIR)$(datadir)/%/configure.in,$(template-sets)) \
 		 $(patsubst %,$(DESTDIR)$(datadir)/%/GNUmakefile.in,$(template-sets))
+
+ifneq ($(shell command -v mdbook),)
+.PHONY: book
+
+book: book.toml
+	$(v-e) MDBOOK
+	$(v-a) mdbook build $(<D)
+endif

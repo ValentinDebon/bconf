@@ -6,7 +6,6 @@ usage: \`$0' [--<option>=<value>]
 Build options:
 	--srcdir  Absolute path to source directory.
 	--objdir  Absolute path to build directory.
-	--sysroot Host system root directory.
 	--host    Host system target.
 Installation directories options:
 	--prefix         defaults to '/usr/local'.
@@ -26,9 +25,7 @@ Installation directories options:
 	--infodir        The directory for installing the GNU Info files for this package, defaults to '\$(datarootdir)/info'.
 	--mandir         The top-level directory for installing the man pages for this package, defaults to '\$(datarootdir)/man'.
 	--htmldir        Directories for installing documentation files in the HTML format, defaults to '\$(docdir)'.
-	--dvidir         Directories for installing documentation files in the DVI format, defaults to '\$(docdir)'.
 	--pdfdir         Directories for installing documentation files in the Portable Document Format, defaults to '\$(docdir)'.
-	--psdir          Directories for installing documentation files in the Post Script format, defaults to '\$(docdir)'.
 Features options:
 @{mkconf_usage}
 EOF
@@ -45,8 +42,7 @@ do
 	# Build directories
 	--objdir=*) objdir=$m_optarg ;;
 	--srcdir=*) srcdir=$m_optarg ;;
-	# Cross-compilation
-	--sysroot=*) mx_sysroot=$m_optarg ;;
+	# Compilation
 	--host=*) mx_host=$m_optarg ;;
 	# Installation directories
 	--prefix=*) mi_prefix=$m_optarg ;;
@@ -66,25 +62,23 @@ do
 	--infodir=*) mi_infodir=$m_optarg ;;
 	--mandir=*) mi_mandir=$m_optarg ;;
 	--htmldir=*) mi_htmldir=$m_optarg ;;
-	--dvidir=*) mi_dvidir=$m_optarg ;;
 	--pdfdir=*) mi_pdfdir=$m_optarg ;;
-	--psdir=*) mi_psdir=$m_optarg ;;
 @{mkconf_getopt_long}
 	*)
-		printf 'unknown option "%s"\n' "$m_option" 2>&1
-		usage 1 ;;
+		if [ -z "$(expr "X$m_option" : '^X\([^=-][^=]*=.*\)$')" ]
+		then printf 'unknown option "%s"\n' "$m_option" 2>&1; usage 1
+		else eval "$m_option"
+		fi ;;
 	esac
 done
 
-if [ ! -z "${mx_host}" ]
+if [ -n "${mx_host}" ]
 then
 	: "${AR:=${mx_host}-ar}"
-	: "${AS:=${mx_host}-as}"
 	: "${CC:=${mx_host}-gcc}"
 	: "${CPP:=${mx_host}-cpp}"
 else
 	: "${AR:=ar}"
-	: "${AS:=as}"
 	: "${CC:=cc}"
 	: "${CPP:=cpp}"
 fi
@@ -100,7 +94,7 @@ fi
 printf 'Package "%s" version "%s"\n' "${m_package_name}" "${m_package_version}"
 
 printf 'Selected tools:\n'
-for var in AR AS CC CPP INSTALL
+for var in AR CC CPP INSTALL
 do
 	if eval "command -v \"\$$var\"" > /dev/null
 	then printf '\t%s is "%s"\n' "$var" "$(eval "echo \"\$$var\"")"
@@ -138,8 +132,6 @@ done
 : "${mi_infodir="${mi_datarootdir}/info"}"
 : "${mi_mandir="${mi_datarootdir}/man"}"
 : "${mi_htmldir="${mi_docdir}"}"
-: "${mi_dvidir="${mi_docdir}"}"
 : "${mi_pdfdir="${mi_docdir}"}"
-: "${mi_psdir="${mi_docdir}"}"
 
 @{mkconf_makefile_heredoc}

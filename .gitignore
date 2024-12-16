@@ -1,5 +1,6 @@
 GNUmakefile
 configure
+html
 lex.yy.c
 y.tab.[ch]
 mkconf
