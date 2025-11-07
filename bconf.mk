@@ -51,3 +51,29 @@ book: book.toml
 	$(v-e) MDBOOK
 	$(v-a) mdbook build $(<D)
 endif
+
+################
+# Manual pages #
+################
+
+ifneq ($(CONFIG_MANPAGES),)
+man1dir:=$(mandir)/man1
+man5dir:=$(mandir)/man5
+
+host-man:=man/mkconf.1 man/bconf.5
+
+.PHONY: install-man uninstall-man
+
+install-data: install-man
+uninstall-data: uninstall-man
+install-man: $(host-man)
+	$(v-e) INSTALL $(host-man)
+	$(v-a) $(INSTALL) -d -- "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man5dir)"
+	$(v-a) $(INSTALL-DATA) -- $(filter %.1,$^) "$(DESTDIR)$(man1dir)"
+	$(v-a) $(INSTALL-DATA) -- $(filter %.5,$^) "$(DESTDIR)$(man5dir)"
+uninstall-man:
+	$(v-e) UNINSTALL $(host-man)
+	$(v-a) $(RM) -- \
+		 $(patsubst %.1,"$(DESTDIR)$(man1dir)/%.1",$(filter %.1,$(notdir $(host-man)))) \
+		 $(patsubst %.5,"$(DESTDIR)$(man5dir)/%.5",$(filter %.5,$(notdir $(host-man))))
+endif

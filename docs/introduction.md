@@ -17,7 +17,7 @@ he builds the source code on his local machine
 The *software developer* is the role who will spend the most
 time with bconf, because he is the one responsible of describing
 how the source code is built, and what are the configuration options.
-He will use **bconf** like a *code owner* in the sens that he will
+He will use **bconf** like a *code owner* in the sense that he will
 use the `mkconf` tool to perform local builds and iterate.
 
 This user guide is mainly aimed at software developers.

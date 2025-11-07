@@ -1,0 +1,66 @@
+.Dd February 3, 2025
+.Dt BCONF 5
+.Os
+.Sh NAME
+.Nm bconf
+.Nd build system configuration
+.Sh DESCRIPTION
+A build configuration is described by a
+.Pa bconf
+file, and a
+.Pa bconf.mk
+GNU-makefile fragment.
+Using
+.Xr mkconf 1 ,
+the
+.Pa bconf
+configuration file description will generate a
+.Pa configure
+script which in turn can be used to generate a
+.Pa GNUmakefile .
+The
+.Pa GNUmakefile
+can be generated out-of-source from the source
+tree hierarchy where the
+.Pa configure
+script is located.
+It requires a working version of
+.Xr gmake 1
+to work correctly.
+.Sh FORMAT
+The
+.Pa bconf
+file follows a simple format describing the options provided by the generated
+.Pa configure
+script.
+.Pp
+In Backus-Naur form, the format looks like:
+.Bd -literal -offset indent
+<features> ::= <feature>*
+<feature> ::= "config" <name> <string> [<defaults>]
+<defaults> ::= "defaults" <string>
+.Ed
+.Pp
+Where a string begins and ends in double quotes and can embed some escaping characters.
+For example:
+.Bd -literal -offset indent
+"This is a string embedding a new line\\n"
+.Ed
+.Sh EXAMPLE
+A simple example for a configuration requiring one argument, a username to display, would be:
+.Bd -literal -offset indent
+config USERNAME
+	"The username to display"
+.Ed
+.Pp
+And if one should be provided by default, the feature can embed a default value:
+.Bd -literal -offset indent
+config USERNAME
+	"The username to display"
+	defaults "Bob"
+.Ed
+.Sh SEE ALSO
+.Xr mkconf 1 , Xr sh 1 , Xr gmake 1 .
+.Sh AUTHORS
+Written by
+.An Valentin Debon Aq Mt valentin.debon@heylelos.org .
